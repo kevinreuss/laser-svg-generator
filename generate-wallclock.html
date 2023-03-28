@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Surfer Wall Clock Laser Cutting SVG Generator</title>
+</head>
+<body>
+  <script>
+    const clockRadius = 150;
+const clockDiameter = clockRadius * 2;
+const holeRadius = 10;
+const strokeWidth = 2;
+
+function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
+  const angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
+  return {
+    x: centerX + radius * Math.cos(angleInRadians),
+    y: centerY + radius * Math.sin(angleInRadians),
+  };
+}
+
+function createSVG() {
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", `${clockDiameter}px`);
+  svg.setAttribute("height", `${clockDiameter}px`);
+  svg.setAttribute("viewBox", `0 0 ${clockDiameter} ${clockDiameter}`);
+  return svg;
+}
+
+function drawClockFace(svg) {
+  const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  circle.setAttribute("cx", clockRadius);
+  circle.setAttribute("cy", clockRadius);
+  circle.setAttribute("r", clockRadius - strokeWidth / 2);
+  circle.setAttribute("stroke", "black");
+  circle.setAttribute("stroke-width", strokeWidth);
+  circle.setAttribute("fill", "none");
+  svg.appendChild(circle);
+}
+
+function drawNumbers(svg) {
+  for (let i = 1; i <= 12; i++) {
+    const point = polarToCartesian(clockRadius, clockRadius, clockRadius - 30, i * 30);
+    const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    text.setAttribute("x", point.x);
+    text.setAttribute("y", point.y);
+    text.setAttribute("font-size", "24px");
+    text.setAttribute("text-anchor", "middle");
+    text.setAttribute("dominant-baseline", "central");
+    text.textContent = i;
+    svg.appendChild(text);
+  }
+}
+
+function drawSurferBackground(svg) {
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", `M0,${clockRadius} Q${clockRadius},${clockRadius * 1.5} ${clockDiameter},${clockRadius} T${clockDiameter * 2},${clockRadius}`);
+  path.setAttribute("stroke", "black");
+  path.setAttribute("stroke-width", strokeWidth);
+  path.setAttribute("fill", "none");
+  svg.appendChild(path);
+}
+
+function drawClockEngineHole(svg) {
+  const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  circle.setAttribute("cx", clockRadius);
+  circle.setAttribute("cy", clockRadius);
+  circle.setAttribute("r", holeRadius);
+  circle.setAttribute("fill", "black");
+  svg.appendChild(circle);
+}
+
+function generateLaserCuttingSVG() {
+  const svg = createSVG();
+  drawSurferBackground(svg);
+  drawClockFace(svg);
+  drawNumbers(svg);
+  drawClockEngineHole(svg);
+
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(svg);
+  const blob = new Blob([svgString], { type: "image/svg+xml" });
+
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "wallclock_lasercut.svg";
+  link.click();
+}
+
+generateLaserCuttingSVG();
+
+  </script>
+</body>
+</html>
